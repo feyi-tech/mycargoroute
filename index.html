@@ -13,6 +13,7 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <link href="https://fonts.googleapis.com/css?family=Rubik:300,400,700|Oswald:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="fonts/icomoon/style.css">
 
@@ -564,58 +565,62 @@
       <div id="track_info" class="site-section" style="display: none;">
         
         <div class="content">
-          <div class="content2 d-flex justify-content-center align-items-center" style="margin-bottom: 0px !important;padding: 1em;background-color: #0091d0 !important;">
-            <h2 style="text-align: center;margin-bottom: 0px !important;color: #fff !important;font-size:22px;">Tracking ID: <span id="tracking_id"></span></h2>
-          </div>
-          <div class="content2" style="display: flex; justify-content: center; align-items: center;flex-wrap: wrap;">
-            <div class="content2-header1">
-              <p>Package </p>
-              <span id="package"></span>
+          <div style="width: 100%">
+            <div class="data_header">
+              <h2>Tracking ID: <span id="tracking_id"></span></h2>
             </div>
-            <div class="content2-header1">
-              <p>Status </p>
-              <span id="status_text">Checking Quality</span>
+            <div class="data_info">
+              <div class="">
+                <p>Package </p>
+                <span id="package">Macbook Pro</span>
+              </div>
+              <div class="">
+                <p>Status </p>
+                <span id="status_text">Checking Quality</span>
+              </div>
+              <div class="">
+                <p>Shipment Date </p>
+                <span id="shippment_date">7-NOV-2015</span>
+              </div>
+              <div class="">
+                <p>Destination </p>
+                <span id="destination_address">No 5, Street</span>
+              </div>
             </div>
-            <div class="content2-header1">
-              <p>Shipment Date </p>
-              <span id="shippment_date"></span>
-            </div>
-            <div class="content2-header1">
-              <p>Expected Date </p>
-              <span id="arrival_date">7-NOV-2015</span>
-            </div>
-            <div class="clear"></div>
           </div>
 
-          <div class="d-flex justify-content-center align-items-center" style="width: 100%;margin-top: 1rem">
+          <div class="d-flex flex-column justify-content-center align-items-center" style="width: 100%;margin-top: 1rem">
             <div id="status_desc" style="text-align: center;"></div>
-          </div>
-
-          <div class="content3">
-            <div class="shipment mb-4">
-              <div class="confirm">
-                        <div class="imgcircle">
-                            <img src="images/confirm.png" alt="confirm order">
-                      </div>
-                <span class="line"></span>
-                <p>Processing</p>
-              </div>
-              <div class="dispatch">
-                <div class="imgcircle">
-                          <img src="images/dispatch.png" alt="dispatch product">
-                      </div>
-                <span class="line"></span>
-                <p>In Transit</p>
-              </div>
-              <div class="delivery">
-                <div class="imgcircle">
-                          <img src="images/delivery.png" alt="delivery">
-                </div>
-                <p>Delivered</p>
-              </div>
-              <div class="clear"></div>
+            <div id="water_mark" style="text-align: center;margin-top: 0.5rem;text-decoration: underline;color: red;display:none;">
+              <i class="fa fa-warning"></i>&nbsp;This is a test shipment. Remove watermark to remove warning.
             </div>
           </div>
+
+          <div class="status_container">
+            <div class="status_box">
+                      <div class="imgcircle2">
+                          <img src="images/confirm.png" alt="confirm order">
+                    </div>
+              <span class="status_line"></span>
+              <p>Processing</p>
+            </div>
+            <div class="status_line_pc"></div>
+            <div class="status_box">
+              <div class="imgcircle2">
+                        <img src="images/dispatch.png" alt="dispatch product">
+                    </div>
+              <span class="status_line"></span>
+              <p>In Transit</p>
+            </div>
+            <div class="status_line_pc"></div>
+            <div class="status_box">
+              <div class="imgcircle2">
+                        <img src="images/delivery.png" alt="delivery">
+              </div>
+              <p>Delivered</p>
+            </div>
+          </div>
+
           <div class="d-flex justify-content-center align-items-end" style="width: 100%;margin-top: 1rem;">
             <button id="back_to_home" class="btn btn-primary text-white px-4 btn-lg">&lt;&lt; Back</button>
           </div>
@@ -784,9 +789,7 @@
         // Use fetch to send the GET request
         fetch(apiUrl)
         .then(response => {
-            console.log("errorResp:::1", response)
           if (!response.ok) {
-            console.log("errorResp:::2", response)
               // If the response is not OK, read the response body
               return response.json().then(errorData => {
                     throw new Error(errorData?.error || "A server error occurred. Please try again later.");
@@ -800,7 +803,7 @@
           updateUIWithData(response.data, trackingId);
         })
         .catch(error => {
-          console.log("error:::", error)
+          //console.log("error:::", error)
           Swal.fire({
             icon: "error",
             title: "Tracking Error",
@@ -823,17 +826,26 @@
         var trackInfoView = document.getElementById('track_info');
         trackInfoView.style.display = 'flex';
 
+        var waterMark = document.getElementById('water_mark');
+        if(data.is_freemium) {
+          waterMark.style.display = "block"
+
+        } else {
+          waterMark.style.display = "none"
+        }
+
         // Fill in information in the track_info view with the data
         var orderNo = trackingId//data.invoiceNumber || "N/A";
         var package = data.packageContent || "N/A";
         var shipmentDate = data.shipmentDate ? formatDate(data.shipmentDate) : "N/A";
         var expectedDate = data.expectedArrivalDate ? formatDate(data.expectedArrivalDate) : "N/A";
+        var destination = data.packageDestinationAddress;
         var status = data.shippingStatus || "N/A";
         var statusText = ""
         var statusDesc = ""
         let step = -1
         if(status == "processing") {
-          statusText = "Checking Quality"
+          statusText = "Processing Order"
           statusDesc = `Your shipment order ${orderNo} has been confirmed and is expected to be delivered between ${shipmentDate} and ${expectedDate}.`
           step = 0
 
@@ -853,20 +865,23 @@
         }
 
         if(step != -1) {
-          const circles = ql(".imgcircle")
-          const lines = ql(".line")
+          const circles = ql(".imgcircle2")
+          const lines = ql(".status_line")
+          const lines_pc = ql(".status_line_pc")
           for (var i = 0; i < circles.length; i++) {
             const circle = circles[i]
             if(i <= step) {
               circle.setAttribute("style", "background:#00aee6")
               if(i != 0) {
                 lines[i - 1].setAttribute("style", "background:#00aee6")
+                lines_pc[i - 1].setAttribute("style", "background:#00aee6")
               }
 
             } else {
               circle.setAttribute("style", "background:#bfbfbf")
               if(i != 0) {
                 lines[i - 1].setAttribute("style", "background:#bfbfbf")
+                lines_pc[i - 1].setAttribute("style", "background:#bfbfbf")
               }
             }
           }
@@ -877,7 +892,7 @@
         document.querySelector('#status_text').textContent = statusText;
         document.querySelector('#status_desc').textContent = statusDesc;
         document.querySelector('#shippment_date').textContent = shipmentDate;
-        document.querySelector('#arrival_date').textContent = expectedDate;
+        document.querySelector('#destination_address').textContent = destination;
         location.href = "#track_info"
       }
 
